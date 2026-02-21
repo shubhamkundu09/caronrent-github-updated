@@ -69,7 +69,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         return (HttpServletRequest request) -> {
             CorsConfiguration cfg = new CorsConfiguration();
-            //cfg.setAllowedOriginPatterns(List.of("*"));
+            cfg.setAllowedOriginPatterns(List.of("*"));
             cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             cfg.setAllowedHeaders(List.of("*"));
             cfg.setExposedHeaders(List.of("Authorization"));
