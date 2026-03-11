@@ -61,20 +61,21 @@
 
 
 
-<!--<dependency>-->
-<!--    <groupId>org.springframework.boot</groupId>-->
-<!--    <artifactId>spring-boot-starter-tomcat</artifactId>-->
-<!--    <scope>provided</scope>-->
-<!--</dependency>-->
+        <!--        uncomment this to run in manish sir laptop-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+    <scope>provided</scope>
+</dependency>
 
-<!--        uncomment this to run in manish sir laptop-->
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-        </dependency>
 
-<!--        comment this to run in manish sir laptop-->
+        <!--        comment this to run in manish sir laptop-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-tomcat</artifactId>-->
+<!--        </dependency>-->
+
 
 
 
