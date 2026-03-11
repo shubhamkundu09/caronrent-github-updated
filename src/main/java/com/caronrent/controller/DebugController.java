@@ -1,5 +1,6 @@
 package com.caronrent.controller;
 
+import com.caronrent.dto.ApiResponse;
 import com.caronrent.service.IdEncryptionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,39 +19,33 @@ public class DebugController {
     }
 
     @GetMapping("/encrypt/{id}")
-    public ResponseEntity<Map<String, Object>> encryptId(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> encryptId(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         try {
             String encrypted = idEncryptionService.encryptId(id);
             response.put("original", id);
             response.put("encrypted", encrypted);
-            response.put("success", true);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(ApiResponse.success("ID encrypted successfully", response));
         } catch (Exception e) {
-            response.put("error", e.getMessage());
-            response.put("success", false);
-            return ResponseEntity.badRequest().body(response);
+            throw new RuntimeException("Encryption failed: " + e.getMessage());
         }
     }
 
     @GetMapping("/decrypt/{encryptedId}")
-    public ResponseEntity<Map<String, Object>> decryptId(@PathVariable String encryptedId) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> decryptId(@PathVariable String encryptedId) {
         Map<String, Object> response = new HashMap<>();
         try {
             Long decrypted = idEncryptionService.decryptId(encryptedId);
             response.put("encrypted", encryptedId);
             response.put("decrypted", decrypted);
-            response.put("success", true);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(ApiResponse.success("ID decrypted successfully", response));
         } catch (Exception e) {
-            response.put("error", e.getMessage());
-            response.put("success", false);
-            return ResponseEntity.badRequest().body(response);
+            throw new RuntimeException("Decryption failed: " + e.getMessage());
         }
     }
 
     @GetMapping("/test-encryption")
-    public ResponseEntity<Map<String, Object>> testEncryption() {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> testEncryption() {
         Map<String, Object> response = new HashMap<>();
         try {
             Long testId = 123L;
@@ -61,12 +56,10 @@ public class DebugController {
             response.put("encrypted", encrypted);
             response.put("decrypted", decrypted);
             response.put("matches", testId.equals(decrypted));
-            response.put("success", true);
-            return ResponseEntity.ok(response);
+
+            return ResponseEntity.ok(ApiResponse.success("Encryption test completed", response));
         } catch (Exception e) {
-            response.put("error", e.getMessage());
-            response.put("success", false);
-            return ResponseEntity.badRequest().body(response);
+            throw new RuntimeException("Encryption test failed: " + e.getMessage());
         }
     }
 }

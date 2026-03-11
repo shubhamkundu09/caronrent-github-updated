@@ -1,5 +1,6 @@
 package com.caronrent.controller;
 
+import com.caronrent.dto.ApiResponse;
 import com.caronrent.dto.BookingRequestDTO;
 import com.caronrent.dto.BookingResponseDTO;
 import com.caronrent.service.BookingService;
@@ -18,78 +19,75 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    // User endpoints
     @PostMapping("/user/create")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<BookingResponseDTO> createBooking(
+    public ResponseEntity<ApiResponse<BookingResponseDTO>> createBooking(
             @RequestBody BookingRequestDTO bookingRequest,
             Authentication authentication) {
         String email = authentication.getName();
         BookingResponseDTO booking = bookingService.createBooking(email, bookingRequest);
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(ApiResponse.success("Booking created successfully. Please complete payment.", booking));
     }
 
     @GetMapping("/user/my-bookings")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<BookingResponseDTO>> getMyBookings(Authentication authentication) {
+    public ResponseEntity<ApiResponse<List<BookingResponseDTO>>> getMyBookings(Authentication authentication) {
         String email = authentication.getName();
         List<BookingResponseDTO> bookings = bookingService.getUserBookings(email);
-        return ResponseEntity.ok(bookings);
+        return ResponseEntity.ok(ApiResponse.success("Bookings retrieved successfully", bookings));
     }
 
     @PutMapping("/user/{encryptedBookingId}/cancel")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<BookingResponseDTO> cancelBooking(
+    public ResponseEntity<ApiResponse<BookingResponseDTO>> cancelBooking(
             @PathVariable String encryptedBookingId,
             Authentication authentication) {
         String email = authentication.getName();
         BookingResponseDTO booking = bookingService.cancelBooking(encryptedBookingId, email);
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(ApiResponse.success("Booking cancelled successfully", booking));
     }
 
-    // Car Owner endpoints
     @GetMapping("/owner/bookings")
     @PreAuthorize("hasAnyRole('CAROWNER', 'ADMIN')")
-    public ResponseEntity<List<BookingResponseDTO>> getOwnerBookings(Authentication authentication) {
+    public ResponseEntity<ApiResponse<List<BookingResponseDTO>>> getOwnerBookings(Authentication authentication) {
         String email = authentication.getName();
         List<BookingResponseDTO> bookings = bookingService.getOwnerBookings(email);
-        return ResponseEntity.ok(bookings);
+        return ResponseEntity.ok(ApiResponse.success("Owner bookings retrieved successfully", bookings));
     }
 
     @PutMapping("/owner/{encryptedBookingId}/confirm")
     @PreAuthorize("hasAnyRole('CAROWNER', 'ADMIN')")
-    public ResponseEntity<BookingResponseDTO> confirmBooking(
+    public ResponseEntity<ApiResponse<BookingResponseDTO>> confirmBooking(
             @PathVariable String encryptedBookingId,
             Authentication authentication) {
         String email = authentication.getName();
         BookingResponseDTO booking = bookingService.confirmBooking(encryptedBookingId, email);
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(ApiResponse.success("Booking confirmed successfully", booking));
     }
 
     @PutMapping("/owner/{encryptedBookingId}/cancel")
     @PreAuthorize("hasAnyRole('CAROWNER', 'ADMIN')")
-    public ResponseEntity<BookingResponseDTO> cancelBookingByOwner(
+    public ResponseEntity<ApiResponse<BookingResponseDTO>> cancelBookingByOwner(
             @PathVariable String encryptedBookingId,
             Authentication authentication) {
         String email = authentication.getName();
         BookingResponseDTO booking = bookingService.cancelBookingByOwner(encryptedBookingId, email);
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(ApiResponse.success("Booking cancelled successfully by owner", booking));
     }
 
-    // Admin endpoints
     @PutMapping("/admin/{encryptedBookingId}/payment-status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BookingResponseDTO> updatePaymentStatus(
+    public ResponseEntity<ApiResponse<BookingResponseDTO>> updatePaymentStatus(
             @PathVariable String encryptedBookingId,
             @RequestParam String status) {
         BookingResponseDTO booking = bookingService.updatePaymentStatus(encryptedBookingId, status);
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(ApiResponse.success("Payment status updated successfully", booking));
     }
 
     @GetMapping("/{encryptedBookingId}")
     @PreAuthorize("hasAnyRole('USER', 'CAROWNER', 'ADMIN')")
-    public ResponseEntity<BookingResponseDTO> getBookingById(@PathVariable String encryptedBookingId) {
+    public ResponseEntity<ApiResponse<BookingResponseDTO>> getBookingById(@PathVariable String encryptedBookingId) {
         BookingResponseDTO booking = bookingService.getBookingById(encryptedBookingId);
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(ApiResponse.success("Booking retrieved successfully", booking));
     }
 }

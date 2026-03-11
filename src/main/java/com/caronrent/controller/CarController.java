@@ -1,5 +1,6 @@
 package com.caronrent.controller;
 
+import com.caronrent.dto.ApiResponse;
 import com.caronrent.dto.CarDTO;
 import com.caronrent.dto.CarResponseDTO;
 import com.caronrent.dto.CarStatusDTO;
@@ -21,77 +22,73 @@ public class CarController {
         this.carService = carService;
     }
 
-    // Car Owner endpoints
     @PostMapping("/owner/add")
     @PreAuthorize("hasAnyRole('CAROWNER', 'ADMIN')")
-    public ResponseEntity<CarResponseDTO> addCar(@RequestBody CarDTO carDTO, Authentication authentication) {
+    public ResponseEntity<ApiResponse<CarResponseDTO>> addCar(@RequestBody CarDTO carDTO, Authentication authentication) {
         String email = authentication.getName();
         CarResponseDTO car = carService.addCar(email, carDTO);
-        return ResponseEntity.ok(car);
+        return ResponseEntity.ok(ApiResponse.success("Car added successfully", car));
     }
 
     @GetMapping("/owner/my-cars")
     @PreAuthorize("hasAnyRole('CAROWNER', 'ADMIN')")
-    public ResponseEntity<List<CarResponseDTO>> getMyCars(Authentication authentication) {
+    public ResponseEntity<ApiResponse<List<CarResponseDTO>>> getMyCars(Authentication authentication) {
         String email = authentication.getName();
         List<CarResponseDTO> cars = carService.getMyCars(email);
-        return ResponseEntity.ok(cars);
+        return ResponseEntity.ok(ApiResponse.success("Your cars retrieved successfully", cars));
     }
 
     @PutMapping("/owner/{encryptedCarId}/status")
     @PreAuthorize("hasAnyRole('CAROWNER', 'ADMIN')")
-    public ResponseEntity<CarResponseDTO> updateCarStatus(
+    public ResponseEntity<ApiResponse<CarResponseDTO>> updateCarStatus(
             @PathVariable String encryptedCarId,
             @RequestBody CarStatusDTO statusDTO,
             Authentication authentication) {
         String email = authentication.getName();
         CarResponseDTO car = carService.updateCarStatus(encryptedCarId, email, statusDTO);
-        return ResponseEntity.ok(car);
+        return ResponseEntity.ok(ApiResponse.success("Car status updated successfully", car));
     }
 
     @DeleteMapping("/owner/{encryptedCarId}")
     @PreAuthorize("hasAnyRole('CAROWNER', 'ADMIN')")
-    public ResponseEntity<String> deleteCar(
+    public ResponseEntity<ApiResponse<String>> deleteCar(
             @PathVariable String encryptedCarId,
             Authentication authentication) {
         String email = authentication.getName();
         carService.deleteCar(encryptedCarId, email);
-        return ResponseEntity.ok("Car deleted successfully");
+        return ResponseEntity.ok(ApiResponse.success("Car deleted successfully", "Car ID: " + encryptedCarId));
     }
 
-    // Public endpoints (for users to browse cars)
     @GetMapping("/public/all")
-    public ResponseEntity<List<CarResponseDTO>> getAllAvailableCars() {
+    public ResponseEntity<ApiResponse<List<CarResponseDTO>>> getAllAvailableCars() {
         List<CarResponseDTO> cars = carService.getAllAvailableCars();
-        return ResponseEntity.ok(cars);
+        return ResponseEntity.ok(ApiResponse.success("Available cars retrieved successfully", cars));
     }
 
-    // Get available cars by date range
     @GetMapping("/public/available")
-    public ResponseEntity<List<CarResponseDTO>> getAvailableCarsByDate(
+    public ResponseEntity<ApiResponse<List<CarResponseDTO>>> getAvailableCarsByDate(
             @RequestParam String startDate,
             @RequestParam String endDate) {
-
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
             LocalDateTime start = LocalDateTime.parse(startDate, formatter);
             LocalDateTime end = LocalDateTime.parse(endDate, formatter);
 
             List<CarResponseDTO> cars = carService.getAvailableCarsByDate(start, end);
-            return ResponseEntity.ok(cars);
+            return ResponseEntity.ok(ApiResponse.success("Available cars for selected dates retrieved successfully", cars));
         } catch (Exception e) {
             throw new RuntimeException("Invalid date format. Use ISO format: yyyy-MM-dd'T'HH:mm:ss");
         }
     }
 
     @GetMapping("/public/{encryptedCarId}")
-    public ResponseEntity<CarResponseDTO> getCarById(@PathVariable String encryptedCarId) {
+    public ResponseEntity<ApiResponse<CarResponseDTO>> getCarById(@PathVariable String encryptedCarId) {
         CarResponseDTO car = carService.getCarById(encryptedCarId);
-        return ResponseEntity.ok(car);
+        return ResponseEntity.ok(ApiResponse.success("Car details retrieved successfully", car));
     }
 
     @GetMapping("/public/search/location")
-    public ResponseEntity<List<CarResponseDTO>> searchByLocation(
+    public ResponseEntity<ApiResponse<List<CarResponseDTO>>> searchByLocation(
             @RequestParam String location,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
@@ -104,17 +101,18 @@ public class CarController {
                 LocalDateTime start = LocalDateTime.parse(startDate, formatter);
                 LocalDateTime end = LocalDateTime.parse(endDate, formatter);
                 cars = carService.searchCarsByLocationAndDate(location, start, end);
+                return ResponseEntity.ok(ApiResponse.success("Cars found at location for selected dates", cars));
             } catch (Exception e) {
                 throw new RuntimeException("Invalid date format. Use ISO format: yyyy-MM-dd'T'HH:mm:ss");
             }
         } else {
             cars = carService.searchCarsByLocation(location);
+            return ResponseEntity.ok(ApiResponse.success("Cars found at location", cars));
         }
-        return ResponseEntity.ok(cars);
     }
 
     @GetMapping("/public/search/brand")
-    public ResponseEntity<List<CarResponseDTO>> searchByBrand(
+    public ResponseEntity<ApiResponse<List<CarResponseDTO>>> searchByBrand(
             @RequestParam String brand,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
@@ -127,17 +125,18 @@ public class CarController {
                 LocalDateTime start = LocalDateTime.parse(startDate, formatter);
                 LocalDateTime end = LocalDateTime.parse(endDate, formatter);
                 cars = carService.searchCarsByBrandAndDate(brand, start, end);
+                return ResponseEntity.ok(ApiResponse.success("Cars found for brand with selected dates", cars));
             } catch (Exception e) {
                 throw new RuntimeException("Invalid date format. Use ISO format: yyyy-MM-dd'T'HH:mm:ss");
             }
         } else {
             cars = carService.searchCarsByBrand(brand);
+            return ResponseEntity.ok(ApiResponse.success("Cars found for brand", cars));
         }
-        return ResponseEntity.ok(cars);
     }
 
     @GetMapping("/public/search/price")
-    public ResponseEntity<List<CarResponseDTO>> searchByPriceRange(
+    public ResponseEntity<ApiResponse<List<CarResponseDTO>>> searchByPriceRange(
             @RequestParam Double minPrice,
             @RequestParam Double maxPrice,
             @RequestParam(required = false) String startDate,
@@ -151,13 +150,13 @@ public class CarController {
                 LocalDateTime start = LocalDateTime.parse(startDate, formatter);
                 LocalDateTime end = LocalDateTime.parse(endDate, formatter);
                 cars = carService.searchCarsByPriceRangeAndDate(minPrice, maxPrice, start, end);
+                return ResponseEntity.ok(ApiResponse.success("Cars found in price range for selected dates", cars));
             } catch (Exception e) {
                 throw new RuntimeException("Invalid date format. Use ISO format: yyyy-MM-dd'T'HH:mm:ss");
             }
         } else {
             cars = carService.searchCarsByPriceRange(minPrice, maxPrice);
+            return ResponseEntity.ok(ApiResponse.success("Cars found in price range", cars));
         }
-        return ResponseEntity.ok(cars);
     }
-
 }

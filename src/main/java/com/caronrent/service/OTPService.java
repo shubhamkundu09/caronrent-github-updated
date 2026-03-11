@@ -1,10 +1,10 @@
 package com.caronrent.service;
 
-
 import com.caronrent.entity.OTP;
 import com.caronrent.repo.OTPRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -21,9 +21,10 @@ public class OTPService {
         this.emailService = emailService;
     }
 
+    @Transactional  // Add this annotation
     public String generateAndSendOTP(String email) {
         // Delete old OTPs for this email
-        otpRepository.deleteByEmail(email);
+        otpRepository.deleteByEmail(email);  // This requires a transaction
 
         // Generate new OTP
         String otpCode = generateOTP();
@@ -42,6 +43,7 @@ public class OTPService {
         return otpCode;
     }
 
+    @Transactional  // Add this if verifyOTP also modifies data
     public boolean verifyOTP(String email, String otpCode) {
         return otpRepository.findByEmailAndOtpCodeAndUsedFalse(email, otpCode)
                 .map(otp -> {

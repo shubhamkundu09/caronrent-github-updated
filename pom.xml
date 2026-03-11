@@ -56,11 +56,32 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-tomcat</artifactId>
-    <scope>provided</scope>
-</dependency>
+
+
+
+
+
+<!--<dependency>-->
+<!--    <groupId>org.springframework.boot</groupId>-->
+<!--    <artifactId>spring-boot-starter-tomcat</artifactId>-->
+<!--    <scope>provided</scope>-->
+<!--</dependency>-->
+
+<!--        uncomment this to run in manish sir laptop-->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </dependency>
+
+<!--        comment this to run in manish sir laptop-->
+
+
+
+
+
+
+
 <!--        mysql connector==============-->
 
         <dependency>
@@ -88,6 +109,13 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.11.5</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
         </dependency>
 		
 

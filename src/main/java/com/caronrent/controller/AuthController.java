@@ -1,6 +1,6 @@
 package com.caronrent.controller;
 
-
+import com.caronrent.dto.ApiResponse;
 import com.caronrent.dto.JwtResponse;
 import com.caronrent.dto.LoginRequest;
 import com.caronrent.dto.SignupRequest;
@@ -19,25 +19,26 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
+    public ResponseEntity<ApiResponse<String>> signup(@RequestBody SignupRequest request) {
         String response = authService.signup(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("OTP sent successfully", response));
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@RequestBody VerifyOTPRequest request) {
+    public ResponseEntity<ApiResponse<String>> verifyOtp(@RequestBody VerifyOTPRequest request) {
         String response = authService.verifyOtpAndRegisterWithPassword(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("Registration successful", response));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<JwtResponse>> login(@RequestBody LoginRequest request) {
         String token = authService.login(request);
-        return ResponseEntity.ok(new JwtResponse(token, "Bearer", request.getEmail(), true));
+        JwtResponse jwtResponse = new JwtResponse(token, "Bearer", request.getEmail(), true);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", jwtResponse));
     }
 
     @GetMapping("/public/health")
-    public ResponseEntity<String> health() {
-        return ResponseEntity.ok("Auth Service is running");
+    public ResponseEntity<ApiResponse<String>> health() {
+        return ResponseEntity.ok(ApiResponse.success("Auth Service is running", "OK"));
     }
 }

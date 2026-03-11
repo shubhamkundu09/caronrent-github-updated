@@ -1,5 +1,6 @@
 package com.caronrent.controller;
 
+import com.caronrent.dto.ApiResponse;
 import com.caronrent.service.IdEncryptionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,30 +22,30 @@ public class TestController {
     }
 
     @GetMapping("/public")
-    public ResponseEntity<String> publicEndpoint() {
-        return ResponseEntity.ok("This is a public endpoint");
+    public ResponseEntity<ApiResponse<String>> publicEndpoint() {
+        return ResponseEntity.ok(ApiResponse.success("Public endpoint accessed", "This is a public endpoint"));
     }
 
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<String> userEndpoint() {
-        return ResponseEntity.ok("This is a user endpoint");
+    public ResponseEntity<ApiResponse<String>> userEndpoint() {
+        return ResponseEntity.ok(ApiResponse.success("User endpoint accessed", "This is a user endpoint"));
     }
 
     @GetMapping("/carowner")
     @PreAuthorize("hasAnyRole('CAROWNER', 'ADMIN')")
-    public ResponseEntity<String> carOwnerEndpoint() {
-        return ResponseEntity.ok("This is a car owner endpoint");
+    public ResponseEntity<ApiResponse<String>> carOwnerEndpoint() {
+        return ResponseEntity.ok(ApiResponse.success("Car owner endpoint accessed", "This is a car owner endpoint"));
     }
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> adminEndpoint() {
-        return ResponseEntity.ok("This is an admin endpoint");
+    public ResponseEntity<ApiResponse<String>> adminEndpoint() {
+        return ResponseEntity.ok(ApiResponse.success("Admin endpoint accessed", "This is an admin endpoint"));
     }
 
     @GetMapping("/my-info")
-    public ResponseEntity<Map<String, Object>> getMyInfo(Authentication authentication) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getMyInfo(Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
         if (authentication != null) {
             response.put("username", authentication.getName());
@@ -52,21 +53,21 @@ public class TestController {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList()));
             response.put("isAuthenticated", authentication.isAuthenticated());
+            return ResponseEntity.ok(ApiResponse.success("User info retrieved", response));
         } else {
-            response.put("message", "Not authenticated");
+            return ResponseEntity.ok(ApiResponse.success("Not authenticated", response));
         }
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/encrypt/{id}")
-    public ResponseEntity<String> encryptId(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> encryptId(@PathVariable Long id) {
         String encrypted = idEncryptionService.encryptId(id);
-        return ResponseEntity.ok(encrypted);
+        return ResponseEntity.ok(ApiResponse.success("ID encrypted successfully", encrypted));
     }
 
     @GetMapping("/decrypt/{encryptedId}")
-    public ResponseEntity<Long> decryptId(@PathVariable String encryptedId) {
+    public ResponseEntity<ApiResponse<Long>> decryptId(@PathVariable String encryptedId) {
         Long decrypted = idEncryptionService.decryptId(encryptedId);
-        return ResponseEntity.ok(decrypted);
+        return ResponseEntity.ok(ApiResponse.success("ID decrypted successfully", decrypted));
     }
 }
